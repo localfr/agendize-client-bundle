@@ -94,12 +94,13 @@ class AgendizeClient
      * List reseller accounts
      * 
      * @param null|AccountSearchParams $searchParams Search parameters.
+     * @param null|bool                $raw          Whether to return raw response or object.
      *
      * @throws ClientException
      * 
-     * @return Account[]
+     * @return string|AccountsListResponse
      */
-    public function listResellerAccounts(?AccountSearchParams $searchParams = null): Collection
+    public function listResellerAccounts(?AccountSearchParams $searchParams = null, ?bool $raw = false)
     {
         $url = sprintf(
             '%s/accounts',
@@ -108,7 +109,6 @@ class AgendizeClient
         if ($searchParams instanceof AccountSearchParams) {
             $url = sprintf('%s?%s', $url, \http_build_query($searchParams));
         }
-        var_dump($url);
         
         $response = $this->_httpClient->request(
             'GET',
@@ -121,26 +121,28 @@ class AgendizeClient
             ]
         );
 
-        /** @var AccountsListResponse $alr Accounts list raw response */
-        $alr = $this->_serializer->deserialize(
+        if (true === $raw) {
+            return $response->getContent();
+        }
+
+        return $this->_serializer->deserialize(
             $response->getContent(),
             AccountsListResponse::class,
             'json'
         );
-
-        return $alr->getItems();
     }
 
     /**
      * Get a reseller account
      *
-     * @param string $identifier Agendize ID or resellerId (field is identifier).
+     * @param string    $identifier Agendize ID or resellerId (field is identifier).
+     * @param null|bool $raw        Whether to return raw response or object.
      * 
      * @throws ClientException
      * 
-     * @return Account
+     * @return string|Account
      */
-    public function getResellerAccount(string $identifier): Account
+    public function getResellerAccount(string $identifier, ?bool $raw = false)
     {
         $url = sprintf(
             '%s/accounts/%s',
@@ -159,6 +161,10 @@ class AgendizeClient
             ]
         );
 
+        if (true === $raw) {
+            return $response->getContent();
+        }
+
         return $this->_serializer->deserialize(
             $response->getContent(),
             Account::class,
@@ -171,12 +177,13 @@ class AgendizeClient
      *
      * @param string              $identifier   Agendize ID or resellerId (field is identifier).
      * @param AccountCreateParams $createParams Account parameters.
+     * @param null|bool           $raw          Whether to return raw response or object.
      * 
      * @throws ClientException
      * 
-     * @return Account
+     * @return string|Account
      */
-    public function createResellerAccount(string $identifier, AccountCreateParams $createParams): Account
+    public function createResellerAccount(string $identifier, AccountCreateParams $createParams, ?bool $raw = false)
     {
         $url = sprintf(
             '%s/accounts/%s',
@@ -202,6 +209,10 @@ class AgendizeClient
             ]
         );
 
+        if (true === $raw) {
+            return $response->getContent();
+        }
+
         return $this->_serializer->deserialize(
             $response->getContent(),
             Account::class,
@@ -214,12 +225,13 @@ class AgendizeClient
      *
      * @param string              $identifier   Agendize ID or resellerId (field is identifier).
      * @param AccountUpdateParams $updateParams Parameters to update.
+     * @param null|bool           $raw          Whether to return raw response or object.
      * 
      * @throws ClientException
      * 
-     * @return Account
+     * @return string|Account
      */
-    public function updateResellerAccount(string $identifier, AccountUpdateParams $updateParams): Account
+    public function updateResellerAccount(string $identifier, AccountUpdateParams $updateParams, ?bool $raw = false)
     {
         $url = sprintf(
             '%s/accounts/%s',
@@ -244,6 +256,10 @@ class AgendizeClient
                 )
             ]
         );
+
+        if (true === $raw) {
+            return $response->getContent();
+        }
 
         return $this->_serializer->deserialize(
             $response->getContent(),
