@@ -2,5 +2,5 @@ localfr_agendize:
     client_id: '%env(string:LOCALFR_AGENDIZE_CLIENT_ID)%'
     client_secret: '%env(string:LOCALFR_AGENDIZE_CLIENT_SECRET)%'
     username: '%env(string:LOCALFR_AGENDIZE_USERNAME)%'
-    password: '%env(string:LOCALFR_AGENDIZE_API_PASSWORD)%'
+    password: '%env(string:LOCALFR_AGENDIZE_PASSWORD)%'
     api_version: '%env(string:LOCALFR_AGENDIZE_API_VERSION)%'
