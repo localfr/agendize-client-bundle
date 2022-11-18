@@ -1,0 +1,42 @@
+services:
+  _defaults:
+    autowire: true      # Automatically injects dependencies in your services.
+    autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+
+  Localfr\AgendizeClientBundle\:
+    resource: '../../'
+    exclude:
+      - '../../DependencyInjection/'
+      - '../../Resources/'
+      - '../../Tests/'
+
+  localfr.agendize.serializer:
+    class: Localfr\AgendizeClientBundle\Component\Serializer\AgendizeSerializer
+    public: true
+
+  localfr.agendize.agendize_provider:
+    class: Localfr\AgendizeClientBundle\Service\Agendize\AuthProvider\AgendizeProvider
+    public: true
+    arguments:
+      $clientId: '%localfr_agendize.client_id%'
+      $clientSecret: '%localfr_agendize.client_secret%'
+      $username: '%localfr_agendize.username%'
+      $password: '%localfr_agendize.password%'
+  
+  localfr.agendize.cached_agendize_provider:
+    class: Localfr\AgendizeClientBundle\Service\Agendize\AuthProvider\CachedAgendizeProvider
+    public: true
+    arguments:
+      $clientId: '%localfr_agendize.client_id%'
+      $clientSecret: '%localfr_agendize.client_secret%'
+      $username: '%localfr_agendize.username%'
+      $password: '%localfr_agendize.password%'
+
+  Localfr\AgendizeClientBundle\Service\Agendize\Client\AgendizeClient: ~
+
+  localfr.agendize.client:
+    class: Localfr\AgendizeClientBundle\Service\Agendize\Client\AgendizeClient
+    public: true
+  
+  Localfr\AgendizeClientBundle\Service\Agendize\AuthProvider\AgendizeProviderInterface: '@localfr.agendize.cached_agendize_provider'

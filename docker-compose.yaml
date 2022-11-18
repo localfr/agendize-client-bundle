@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+    sab-php:
+        build:
+            context: .
+            dockerfile: ./Dockerfile
+        container_name: sab-php-container
+        volumes:
+            - .:/app
