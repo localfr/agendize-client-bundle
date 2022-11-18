@@ -13,7 +13,6 @@ services:
 
   localfr.agendize.serializer:
     class: Localfr\AgendizeClientBundle\Component\Serializer\AgendizeSerializer
-    public: true
 
   localfr.agendize.agendize_provider:
     class: Localfr\AgendizeClientBundle\Service\Agendize\AuthProvider\AgendizeProvider
@@ -33,10 +32,11 @@ services:
       $username: '%localfr_agendize.username%'
       $password: '%localfr_agendize.password%'
 
-  Localfr\AgendizeClientBundle\Service\Agendize\Client\AgendizeClient: ~
+  Localfr\AgendizeClientBundle\Service\Agendize\Client\AgendizeClient:
+    arguments:
+      $apiVersion: '%localfr_agendize.api_version%'
 
   localfr.agendize.client:
     class: Localfr\AgendizeClientBundle\Service\Agendize\Client\AgendizeClient
-    public: true
   
   Localfr\AgendizeClientBundle\Service\Agendize\AuthProvider\AgendizeProviderInterface: '@localfr.agendize.cached_agendize_provider'
