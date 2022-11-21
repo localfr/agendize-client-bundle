@@ -6,7 +6,7 @@ use Doctrine\Common\Collections\Collection;
 use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\{HttpClientInterface, ResponseInterface};
 use Localfr\AgendizeClientBundle\Model\Account\{
     Account,
     AccountCreateParams,
@@ -104,22 +104,13 @@ class AgendizeClient
     {
         $url = sprintf(
             '%s/accounts',
-            $this->_buildResellersUrl()
+            $this->buildResellersUrl()
         );
         if ($searchParams instanceof AccountSearchParams) {
             $url = sprintf('%s?%s', $url, \http_build_query($searchParams));
         }
         
-        $response = $this->_httpClient->request(
-            'GET',
-            $url,
-            [
-                "headers" => array_merge(
-                    self::DEFAULT_HEADERS,
-                    $this->_agendizeProvider->getAuhtorizationHeader()
-                )
-            ]
-        );
+        $response = $this->request('GET', $url);
 
         if (true === $raw) {
             return $response->getContent();
@@ -146,20 +137,11 @@ class AgendizeClient
     {
         $url = sprintf(
             '%s/accounts/%s',
-            $this->_buildResellersUrl(),
+            $this->buildResellersUrl(),
             $identifier
         );
         
-        $response = $this->_httpClient->request(
-            'GET',
-            $url,
-            [
-                "headers" => array_merge(
-                    self::DEFAULT_HEADERS,
-                    $this->_agendizeProvider->getAuhtorizationHeader()
-                )
-            ]
-        );
+        $response = $this->request('GET', $url);
 
         if (true === $raw) {
             return $response->getContent();
@@ -187,27 +169,18 @@ class AgendizeClient
     {
         $url = sprintf(
             '%s/accounts/%s',
-            $this->_buildResellersUrl(),
+            $this->buildResellersUrl(),
             $identifier
         );
 
-        $body = $this->_serializer->serialize(
+        $options = [];
+        $options["body"] = $this->_serializer->serialize(
             $createParams,
             'json',
             [ AbstractObjectNormalizer::SKIP_NULL_VALUES => true ]
         );
-        dd($body);
-        
-        $response = $this->_httpClient->request(
-            'POST',
-            $url,
-            [
-                "headers" => array_merge(
-                    self::DEFAULT_HEADERS,
-                    $this->_agendizeProvider->getAuhtorizationHeader()
-                )
-            ]
-        );
+
+        $response = $this->request('POST', $url, $options);
 
         if (true === $raw) {
             return $response->getContent();
@@ -235,27 +208,18 @@ class AgendizeClient
     {
         $url = sprintf(
             '%s/accounts/%s',
-            $this->_buildResellersUrl(),
+            $this->buildResellersUrl(),
             $identifier
         );
 
-        $body = $this->_serializer->serialize(
+        $options = [];
+        $options["body"] = $this->_serializer->serialize(
             $updateParams,
             'json',
             [ AbstractObjectNormalizer::SKIP_NULL_VALUES => true ]
         );
         
-        $response = $this->_httpClient->request(
-            'PUT',
-            $url,
-            [
-                "body" => $body,
-                "headers" => array_merge(
-                    self::DEFAULT_HEADERS,
-                    $this->_agendizeProvider->getAuhtorizationHeader()
-                )
-            ]
-        );
+        $response = $this->request('PUT', $url, $options);
 
         if (true === $raw) {
             return $response->getContent();
@@ -281,20 +245,11 @@ class AgendizeClient
     {
         $url = sprintf(
             '%s/accounts/%s',
-            $this->_buildResellersUrl(),
+            $this->buildResellersUrl(),
             $identifier
         );
         
-        $response = $this->_httpClient->request(
-            'DELETE',
-            $url,
-            [
-                "headers" => array_merge(
-                    self::DEFAULT_HEADERS,
-                    $this->_agendizeProvider->getAuhtorizationHeader()
-                )
-            ]
-        );
+        $response = $this->request('DELETE', $url);
 
         if (200 !== $response->getStatusCode()) {
             return false;
@@ -308,7 +263,7 @@ class AgendizeClient
      * 
      * @return string
      */
-    private function _buildResellersUrl(): string
+    public function buildResellersUrl(): string
     {
         return sprintf(
             '%s%s/%s%s',
@@ -316,6 +271,49 @@ class AgendizeClient
             self::API_PREFIX,
             $this->_apiVersion,
             self::RESELLERS_ENDPOINT
+        );
+    }
+
+    /**
+     * Build request headers
+     * 
+     * @return array
+     */
+    private function _buildHeaders(): array
+    {
+        return array_merge(
+            self::DEFAULT_HEADERS,
+            $this->_agendizeProvider->getAuhtorizationHeader()
+        );
+    }
+
+    /**
+     * Execute request
+     * 
+     * @param string $method  HTTP Method
+     * @param string $url     URL
+     * @param array  $options Options passed to http requests
+     * 
+     * @return ResponseInterface
+     * @throws TransportExceptionInterface — When an unsupported option is passed
+     */
+    public function request(string $method, string $url, array $options = []): ResponseInterface
+    {
+        // If body exists, it should be a string representation of JSON
+        if (array_key_exists("body", $options) && !is_string($options["body"])) {
+            $options["body"] = json_encode($options["body"]);
+        }
+        $options = array_merge(
+            $options,
+            [
+                "headers" => $this->_buildHeaders()
+            ]
+        );
+
+        return $this->_httpClient->request(
+            $method,
+            $url,
+            $options
         );
     }
 }
