@@ -16,10 +16,8 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
-                ->scalarNode('client_id')->isRequired()->end()
-                ->scalarNode('client_secret')->isRequired()->end()
-                ->scalarNode('username')->isRequired()->end()
-                ->scalarNode('password')->isRequired()->end()
+                ->scalarNode('api_key')->isRequired()->end()
+                ->scalarNode('api_token')->isRequired()->end()
                 ->scalarNode('api_version')->defaultValue('2.0')->end()
             ->end()
         ;

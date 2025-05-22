@@ -1,5 +1,3 @@
 localfr_agendize:
-    client_id: 'client_id'
-    client_secret: 'client_secret'
-    username: 'username'
-    password: 'password'
+    api_key: 'api_key'
+    api_token: 'api_token'

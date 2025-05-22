@@ -32,10 +32,8 @@ class LocalfrAgendizeClientBundleExtension extends Extension
 
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
-        $container->setParameter('localfr_agendize.client_id', $config['client_id']);
-        $container->setParameter('localfr_agendize.client_secret', $config['client_secret']);
-        $container->setParameter('localfr_agendize.username', $config['username']);
-        $container->setParameter('localfr_agendize.password', $config['password']);
+        $container->setParameter('localfr_agendize.api_key', $config['api_key']);
+        $container->setParameter('localfr_agendize.api_token', $config['api_token']);
         $container->setParameter('localfr_agendize.api_version', $config['api_version']);
     }
 }

@@ -19,19 +19,15 @@ services:
     class: Localfr\AgendizeClientBundle\Service\Agendize\AuthProvider\AgendizeProvider
     public: true
     arguments:
-      $clientId: '%localfr_agendize.client_id%'
-      $clientSecret: '%localfr_agendize.client_secret%'
-      $username: '%localfr_agendize.username%'
-      $password: '%localfr_agendize.password%'
-  
+      $apiKey: '%localfr_agendize.api_key%'
+      $apiToken: '%localfr_agendize.api_token%'
+
   localfr.agendize.cached_agendize_provider:
     class: Localfr\AgendizeClientBundle\Service\Agendize\AuthProvider\CachedAgendizeProvider
     public: true
     arguments:
-      $clientId: '%localfr_agendize.client_id%'
-      $clientSecret: '%localfr_agendize.client_secret%'
-      $username: '%localfr_agendize.username%'
-      $password: '%localfr_agendize.password%'
+      $apiKey: '%localfr_agendize.api_key%'
+      $apiToken: '%localfr_agendize.api_token%'
 
   Localfr\AgendizeClientBundle\Service\Agendize\Client\AgendizeClient:
     arguments:

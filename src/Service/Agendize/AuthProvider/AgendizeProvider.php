@@ -3,7 +3,6 @@
 namespace Localfr\AgendizeClientBundle\Service\Agendize\AuthProvider;
 
 use Symfony\Contracts\HttpClient\{HttpClientInterface, ResponseInterface};
-use Localfr\AgendizeClientBundle\Service\Agendize\Token\AccessToken;
 use UnexpectedValueException;
 
 /**
@@ -19,32 +18,17 @@ class AgendizeProvider implements AgendizeProviderInterface
     /**
      * @var string
      */
-    const TOKEN_ENDPOINT = '/o/oauth2/token';
-
-    /**
-     * @var string
-     */
     protected $url;
 
     /**
      * @var string
      */
-    protected $clientId;
+    protected $apiKey;
 
     /**
      * @var string
      */
-    protected $clientSecret;
-
-    /**
-     * @var string
-     */
-    protected $username;
-
-    /**
-     * @var string
-     */
-    protected $password;
+    protected $apiToken;
 
     /**
      * @var HttpClientInterface
@@ -52,113 +36,37 @@ class AgendizeProvider implements AgendizeProviderInterface
     protected $httpClient;
 
     /**
-     * @var AccessToken
-     */
-    protected $accessToken;
-
-    /**
      * @param HttpClientInterface $httpClient
-     * @param string $clientId
-     * @param string $clientSecret
-     * @param string $username
-     * @param string $password
+     * @param string $apiKey
+     * @param string $apiToken
      * @param null|string $url
      */
     public function __construct(
         HttpClientInterface $httpClient,
-        string $clientId,
-        string $clientSecret,
-        string $username,
-        string $password,
+        string $apiKey,
+        string $apiToken,
         ?string $url = null
     ) {
         $this->httpClient = $httpClient;
-        $this->clientId = $clientId;
-        $this->clientSecret = $clientSecret;
-        $this->username = $username;
-        $this->password = $password;
+        $this->apiKey = $apiKey;
+        $this->apiToken = $apiToken;
         $this->url = $url ?: self::URL;
     }
 
     /**
      * @inheritdoc
      */
-    public function authorize(): void
+    public function getApiKey(): string
     {
-        // We already have a valid token
-        if ($this->accessToken instanceof AccessToken && !$this->accessToken->hasExpired()) {
-            return;
-        }
-
-        $url = sprintf("%s%s", $this->url, self::TOKEN_ENDPOINT);
-        $body = null;
-        $options = [
-            'body' => $body,
-            'headers' => [
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/x-www-form-urlencoded'
-            ]
-        ];
-
-        if (!$this->accessToken instanceof AccessToken) {
-            // No token, negotiating one
-            $options['body'] = \http_build_query(
-                [
-                    'client_id' => $this->clientId,
-                    'client_secret' => $this->clientSecret,
-                    'username' => $this->username,
-                    'password' => $this->password,
-                    'grant_type' => 'password'
-                ]
-            );
-        } elseif ($this->accessToken->hasExpired()) {
-            // Token has expired, refreshing it
-            $options["body"] = \http_build_query(
-                [
-                    'client_id' => $this->clientId,
-                    'client_secret' => $this->clientSecret,
-                    'refresh_token' => $this->accessToken->getRefreshToken(),
-                    'grant_type' => 'refresh_token'
-                ]
-            );
-        }
-
-        $response = $this->httpClient->request(
-            'POST',
-            $url,
-            $options
-        );
-
-        $token = $this->getParsedResponse($response);
-        $this->accessToken = new AccessToken($token);
+        return $this->apiKey;
     }
 
     /**
      * @inheritdoc
      */
-    public function revoke(): void
+    public function getApiToken(): string
     {
-        $this->accessToken = null;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getToken(): string
-    {
-        $this->authorize();
-
-        return $this->accessToken->getToken();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getTokenType(): string
-    {
-        $this->authorize();
-
-        return $this->accessToken->getTokenType();
+        return $this->apiToken;
     }
 
     /**
@@ -175,11 +83,8 @@ class AgendizeProvider implements AgendizeProviderInterface
     public function getAuhtorizationHeader(): array
     {
         return [
-            'Authorization' => sprintf(
-                '%s %s',
-                $this->getTokenType(),
-                $this->getToken()
-            )
+            'apiKey' => $this->getApiKey(),
+            'token' => $this->getApiToken(),
         ];
     }
 

@@ -23,51 +23,22 @@ class CachedAgendizeProvider extends AgendizeProvider
 
     /**
      * @param HttpClientInterface $httpClient
-     * @param string $clientId
-     * @param string $clientSecret
-     * @param string $username
-     * @param string $password
+     * @param string $apiKey
+     * @param string $apiToken
      * @param string $url
      */
     public function __construct(
         HttpClientInterface $httpClient,
-        string $clientId,
-        string $clientSecret,
-        string $username,
-        string $password,
+        string $apiKey,
+        string $apiToken,
         ?string $url = null
     ) {
         parent::__construct(
             $httpClient,
-            $clientId,
-            $clientSecret,
-            $username,
-            $password,
+            $apiKey,
+            $apiToken,
             $url
         );
         $this->adapter = new FilesystemAdapter();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function authorize(bool $reauth = false): void
-    {
-        $this->accessToken = $this->adapter->get(
-            $this->getCachedTokenKey(),
-            function (ItemInterface $item) {
-                parent::authorize();
-                $item->expiresAfter($this->accessToken->getExpires() - time() - 300);
-                return $this->accessToken;
-            }
-        );
-    }
-
-    /**
-     * @return string
-     */
-    private function getCachedTokenKey(): string
-    {
-        return sprintf('%s%s', self::KEY_PREFIX, $this->clientId);
     }
 }
